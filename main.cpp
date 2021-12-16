@@ -34,6 +34,7 @@
 #include <QQmlEngine>
 #include <QQmlContext>
 #include <QTranslator>
+#include <QtLocation/private/qgeojson_p.h>
 
 #include <lipstickqmlpath.h>
 #include <homeapplication.h>
@@ -46,8 +47,56 @@
 #include "gesturefilterarea.h"
 #include "notificationsnoozer.h"
 
+class GeoJsoner: public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QVariant model MEMBER m_importedGeoJson NOTIFY modelChanged)
+
+public:
+    GeoJsoner(QObject *parent = nullptr) : QObject(parent)
+    {
+
+    }
+
+public slots:
+
+    Q_INVOKABLE bool load(QUrl url)
+    {
+        // Reading GeoJSON file
+        QFile loadFile(url.toLocalFile());
+        if (!loadFile.open(QIODevice::ReadOnly)) {
+            qWarning() << "Error while opening the file: " << url;
+            qWarning() << loadFile.error() <<  loadFile.errorString();
+            return false;
+        }
+
+        // Load the GeoJSON file using Qt's API
+        QJsonParseError err;
+        QJsonDocument loadDoc(QJsonDocument::fromJson(loadFile.readAll(), &err));
+        if (err.error) {
+             qWarning() << "Parsing while importing the JSON document:\n" << err.errorString();
+             return false;
+        }
+
+        // Import geographic data to a QVariantList
+        QVariantList modelList = QGeoJson::importGeoJson(loadDoc);
+        m_importedGeoJson =  modelList;
+        emit modelChanged();
+        return true;
+    }
+
+signals:
+    void modelChanged();
+
+public:
+    QVariant m_importedGeoJson;
+};
+
+#include "main.moc"
+
 int main(int argc, char **argv)
 {
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QmlPath::append(":/qml/");
     HomeApplication app(argc, argv, QString());
 
@@ -85,6 +134,7 @@ int main(int argc, char **argv)
     qmlRegisterType<AppLauncherBackground>("org.asteroid.launcher", 1, 0, "AppLauncherBackground");
     qmlRegisterType<GestureFilterArea>("org.asteroid.launcher", 1, 0, "GestureFilterArea");
     qmlRegisterType<NotificationSnoozer>("org.asteroid.launcher", 1, 0, "NotificationSnoozer");
+    qmlRegisterType<GeoJsoner>("Qt.GeoJson", 1, 0, "GeoJsoner");
     app.setQmlPath("qrc:/qml/MainScreen.qml");
 
     // Give these to the environment inside the lipstick homescreen
