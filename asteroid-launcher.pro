@@ -2,7 +2,7 @@ TEMPLATE = app
 TARGET = asteroid-launcher
 VERSION = 0.1
 
-QT += quick waylandcompositor dbus
+QT += quick waylandcompositor dbus positioning location-private
 CONFIG += qt link_pkgconfig qtquickcompiler
 PKGCONFIG += lipstick-qt5 timed-qt5 mlite5
 
