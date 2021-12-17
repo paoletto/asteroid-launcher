@@ -40,6 +40,20 @@ OTHER_FILES += qml/*.qml \
 
 TRANSLATIONS = $$files(i18n/$$TARGET.*.ts)
 
+map_tiles.files = $$files($$PWD/assets/map_tiles/*.*)
+map_tiles.prefix = /
+map_tiles.base = $$PWD
+
+map_providers.files = $$files($$PWD/assets/map_providers/*)
+map_providers.prefix = /
+map_providers.base = $$PWD
+
+geojson.files = $$files($$PWD/assets/geojson/*.*)
+geojson.prefix = /
+geojson.base = $$PWD
+
+RESOURCES += map_tiles map_providers geojson
+
 target.path = /usr/bin
 
 applauncher.path = /usr/share/asteroid-launcher/applauncher
