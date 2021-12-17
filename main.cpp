@@ -104,6 +104,12 @@ int main(int argc, char **argv)
     QObject::connect(app.localeManager(), SIGNAL(localeChanged()), launcherLocaleManager, SLOT(onLocaleChanged()));
 
     QGuiApplication::setFont(QFont("Noto Sans"));
+
+    qmlRegisterType<AppLauncherBackground>("org.asteroid.launcher", 1, 0, "AppLauncherBackground");
+    qmlRegisterType<GestureFilterArea>("org.asteroid.launcher", 1, 0, "GestureFilterArea");
+    qmlRegisterType<NotificationSnoozer>("org.asteroid.launcher", 1, 0, "NotificationSnoozer");
+    qmlRegisterType<GeoJsoner>("Qt.GeoJson", 1, 0, "GeoJsoner");
+
     app.setCompositorPath("qrc:/qml/compositor.qml");
     Qt::ScreenOrientation nativeOrientation = app.primaryScreen()->nativeOrientation();
     QByteArray v = qgetenv("LAUNCHER_NATIVEORIENTATION");
@@ -129,11 +135,6 @@ int main(int argc, char **argv)
         nativeOrientation = app.primaryScreen()->primaryOrientation();
     app.engine()->rootContext()->setContextProperty("nativeOrientation", nativeOrientation);
     app.engine()->rootContext()->setContextProperty("firstRun", firstRun);
-
-    qmlRegisterType<AppLauncherBackground>("org.asteroid.launcher", 1, 0, "AppLauncherBackground");
-    qmlRegisterType<GestureFilterArea>("org.asteroid.launcher", 1, 0, "GestureFilterArea");
-    qmlRegisterType<NotificationSnoozer>("org.asteroid.launcher", 1, 0, "NotificationSnoozer");
-    qmlRegisterType<GeoJsoner>("Qt.GeoJson", 1, 0, "GeoJsoner");
     app.setQmlPath("qrc:/qml/MainScreen.qml");
 
     // Give these to the environment inside the lipstick homescreen
