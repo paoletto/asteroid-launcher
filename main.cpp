@@ -39,6 +39,7 @@
 #include <QtLocation/private/qgeojson_p.h>
 
 #include <lipstickqmlpath.h>
+#include <lipstickcompositor.h>
 #include <homeapplication.h>
 #include <homewindow.h>
 #include <localemanager.h>
@@ -94,6 +95,40 @@ public:
     QVariant m_importedGeoJson;
 };
 
+class NativeGestureManager: public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(bool nativeGestureEnabled READ nativeGestureEnabled WRITE setNativeGestureEnabled NOTIFY nativeGestureEnabledChanged)
+    bool m_nativeGestureEnabled = true;
+    HomeWindow *m_homeWindow = nullptr;
+public:
+    NativeGestureManager(HomeWindow *parent = nullptr) : QObject(parent), m_homeWindow(parent)
+    {
+
+    }
+
+    bool nativeGestureEnabled() const {
+        return m_nativeGestureEnabled;
+    }
+
+    void setNativeGestureEnabled(bool enabled) {
+        if (m_nativeGestureEnabled == enabled)
+            return;
+
+        m_nativeGestureEnabled = enabled;
+        if (!m_homeWindow)
+            return;
+        if(enabled)
+            m_homeWindow->enableNativeGestures();
+        else
+            m_homeWindow->disableNativeGestures();
+
+    }
+
+signals:
+    void nativeGestureEnabledChanged();
+};
+
 #include "main.moc"
 
 int main(int argc, char **argv)
@@ -101,6 +136,7 @@ int main(int argc, char **argv)
     QmlPath::append(":/qml/");
     QScopedPointer<GeoJsoner> geoJsoner(new GeoJsoner);
     HomeApplication app(argc, argv, QString());
+
     app.engine()->rootContext()->setContextProperty("geoJsoner", geoJsoner.get());
 
     FirstRun *firstRun = new FirstRun();
@@ -134,12 +170,11 @@ int main(int argc, char **argv)
     app.engine()->rootContext()->setContextProperty("nativeOrientation", nativeOrientation);
     app.engine()->rootContext()->setContextProperty("firstRun", firstRun);
 
-
-
     qmlRegisterType<AppLauncherBackground>("org.asteroid.launcher", 1, 0, "AppLauncherBackground");
     qmlRegisterType<GestureFilterArea>("org.asteroid.launcher", 1, 0, "GestureFilterArea");
     qmlRegisterType<NotificationSnoozer>("org.asteroid.launcher", 1, 0, "NotificationSnoozer");
     qmlRegisterType<GeoJsoner>("org.asteroid.launcher", 1, 0, "GeoJsoner");
+
 
     app.setQmlPath("qrc:/qml/MainScreen.qml");
 
@@ -149,6 +184,10 @@ int main(int argc, char **argv)
     setenv("QT_QPA_PLATFORM", "wayland", 1);
     setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1);
     app.mainWindowInstance()->showFullScreen();
+
+    NativeGestureManager *nativeGestureManager = new NativeGestureManager(app.mainWindowInstance());
+    app.engine()->rootContext()->setContextProperty("nativeGestureManager", nativeGestureManager);
+
     return app.exec();
 }
 
