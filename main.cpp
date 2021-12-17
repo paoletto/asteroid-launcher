@@ -30,6 +30,7 @@
  */
 
 #include <QFont>
+#include <QScopedPointer>
 #include <QScreen>
 #include <QQmlEngine>
 #include <QQmlContext>
@@ -97,7 +98,9 @@ public:
 int main(int argc, char **argv)
 {
     QmlPath::append(":/qml/");
+    QScopedPointer<GeoJsoner> geoJsoner(new GeoJsoner);
     HomeApplication app(argc, argv, QString());
+    app.engine()->rootContext()->setContextProperty("geoJsoner", geoJsoner.get());
 
     FirstRun *firstRun = new FirstRun();
     LauncherLocaleManager *launcherLocaleManager = new LauncherLocaleManager();
@@ -108,7 +111,8 @@ int main(int argc, char **argv)
     qmlRegisterType<AppLauncherBackground>("org.asteroid.launcher", 1, 0, "AppLauncherBackground");
     qmlRegisterType<GestureFilterArea>("org.asteroid.launcher", 1, 0, "GestureFilterArea");
     qmlRegisterType<NotificationSnoozer>("org.asteroid.launcher", 1, 0, "NotificationSnoozer");
-    qmlRegisterType<GeoJsoner>("org.asteroid.launcher", 1, 0, "GeoJsoner");
+    //qmlRegisterType<GeoJsoner>("org.asteroid.launcher", 1, 0, "GeoJsoner");
+
 
     app.setCompositorPath("qrc:/qml/compositor.qml");
     Qt::ScreenOrientation nativeOrientation = app.primaryScreen()->nativeOrientation();
@@ -133,6 +137,7 @@ int main(int argc, char **argv)
     }
     if (nativeOrientation == Qt::PrimaryOrientation)
         nativeOrientation = app.primaryScreen()->primaryOrientation();
+
     app.engine()->rootContext()->setContextProperty("nativeOrientation", nativeOrientation);
     app.engine()->rootContext()->setContextProperty("firstRun", firstRun);
     app.setQmlPath("qrc:/qml/MainScreen.qml");
