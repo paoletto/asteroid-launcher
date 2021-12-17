@@ -40,6 +40,12 @@ OTHER_FILES += qml/*.qml \
 
 TRANSLATIONS = $$files(i18n/$$TARGET.*.ts)
 
+assets.files = $$files($$PWD/assets/*.*)
+assets.prefix = /
+assets.base = $$PWD
+
+RESOURCES += assets
+
 target.path = /usr/bin
 
 applauncher.path = /usr/share/asteroid-launcher/applauncher
