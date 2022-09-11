@@ -34,6 +34,9 @@
 #include <QQmlEngine>
 #include <QQmlContext>
 #include <QTranslator>
+#include <QDirIterator>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
 #include <QtLocation/private/qgeojson_p.h>
 
 #include <lipstickqmlpath.h>
@@ -178,6 +181,26 @@ int main(int argc, char **argv)
     setenv("EGL_PLATFORM", "wayland", 1);
     setenv("QT_QPA_PLATFORM", "wayland", 1);
     setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1);
+
+
+    QCommandLineParser parser;
+    QCommandLineOption showQrcContentOption("qrc", "show qrc content");
+    parser.addOption(showQrcContentOption);
+    parser.process(app);
+    if (parser.isSet(showQrcContentOption)) {
+        QDirIterator it(":/", QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            const QString next = it.next();
+            if (next.startsWith(":/QtQuick"))
+                continue;
+            if (next.startsWith(":/qt-project.org"))
+                continue;
+            qDebug() << next;
+        }
+        exit(0);
+    }
+
+
     app.mainWindowInstance()->showFullScreen();
     return app.exec();
 }
