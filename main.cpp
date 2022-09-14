@@ -60,20 +60,20 @@ public:
     }
 
     bool nativeGestureEnabled() const {
-        return m_nativeGestureEnabled;
+//        return m_nativeGestureEnabled;
     }
 
     void setNativeGestureEnabled(bool enabled) {
-        if (m_nativeGestureEnabled == enabled)
-            return;
+//        if (m_nativeGestureEnabled == enabled)
+//            return;
 
-        m_nativeGestureEnabled = enabled;
-        if (!m_homeWindow)
-            return;
-        if(enabled)
-            m_homeWindow->enableNativeGestures();
-        else
-            m_homeWindow->disableNativeGestures();
+//        m_nativeGestureEnabled = enabled;
+//        if (!m_homeWindow)
+//            return;
+//        if(enabled)
+//            m_homeWindow->enableNativeGestures();
+//        else
+//            m_homeWindow->disableNativeGestures();
 
     }
 
