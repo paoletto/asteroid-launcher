@@ -36,6 +36,7 @@
 #include <QTranslator>
 
 #include <lipstickqmlpath.h>
+#include <lipstickcompositor.h>
 #include <homeapplication.h>
 #include <homewindow.h>
 #include <localemanager.h>
@@ -46,11 +47,48 @@
 #include "gesturefilterarea.h"
 #include "notificationsnoozer.h"
 
+class NativeGestureManager: public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(bool nativeGestureEnabled READ nativeGestureEnabled WRITE setNativeGestureEnabled NOTIFY nativeGestureEnabledChanged)
+    bool m_nativeGestureEnabled = true;
+    HomeWindow *m_homeWindow = nullptr;
+public:
+    NativeGestureManager(HomeWindow *parent = nullptr) : QObject(parent), m_homeWindow(parent)
+    {
+
+    }
+
+    bool nativeGestureEnabled() const {
+        return m_nativeGestureEnabled;
+    }
+
+    void setNativeGestureEnabled(bool enabled) {
+        if (m_nativeGestureEnabled == enabled)
+            return;
+
+        m_nativeGestureEnabled = enabled;
+        if (!m_homeWindow)
+            return;
+        if(enabled)
+            m_homeWindow->enableNativeGestures();
+        else
+            m_homeWindow->disableNativeGestures();
+
+    }
+
+signals:
+    void nativeGestureEnabledChanged();
+};
+
+#include "main.moc"
+
 int main(int argc, char **argv)
 {
     QmlPath::append(":/qml/");
     HomeApplication app(argc, argv, QString());
 
+    NativeGestureManager *nativeGestureManager = new NativeGestureManager(app.mainWindowInstance());
     FirstRun *firstRun = new FirstRun();
     LauncherLocaleManager *launcherLocaleManager = new LauncherLocaleManager();
     QObject::connect(app.localeManager(), SIGNAL(localeChanged()), launcherLocaleManager, SLOT(onLocaleChanged()));
@@ -81,6 +119,7 @@ int main(int argc, char **argv)
         nativeOrientation = app.primaryScreen()->primaryOrientation();
     app.engine()->rootContext()->setContextProperty("nativeOrientation", nativeOrientation);
     app.engine()->rootContext()->setContextProperty("firstRun", firstRun);
+    app.engine()->rootContext()->setContextProperty("nativeGestureManager", nativeGestureManager);
 
     qmlRegisterType<AppLauncherBackground>("org.asteroid.launcher", 1, 0, "AppLauncherBackground");
     qmlRegisterType<GestureFilterArea>("org.asteroid.launcher", 1, 0, "GestureFilterArea");
