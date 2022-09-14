@@ -98,19 +98,6 @@ public:
 
 int main(int argc, char **argv)
 {
-    {
-        QDirIterator it(":/", QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            const QString next = it.next();
-            if (next.startsWith(":/QtQuick"))
-                continue;
-            if (next.startsWith(":/qt-project.org"))
-                continue;
-            qDebug() << next;
-        }
-//        exit(0);
-    }
-
     QmlPath::append(":/qml/");
     QScopedPointer<GeoJsoner> geoJsoner(new GeoJsoner);
     HomeApplication app(argc, argv, QString());
