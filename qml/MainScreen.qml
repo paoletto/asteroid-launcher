@@ -164,7 +164,7 @@ Item {
 
     Timer {
         id: wallClockAmbientTimeout
-        interval: 200
+        interval: 3500
         repeat: false
         onTriggered: Lipstick.compositor.setAmbientUpdatesEnabled(false)
     }
