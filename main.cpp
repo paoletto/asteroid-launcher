@@ -36,8 +36,6 @@
 #include <QQmlContext>
 #include <QTranslator>
 #include <QDirIterator>
-#include <QCommandLineParser>
-#include <QCommandLineOption>
 #include <QtLocation/private/qgeojson_p.h>
 
 #include <lipstickqmlpath.h>
@@ -100,6 +98,19 @@ public:
 
 int main(int argc, char **argv)
 {
+    {
+        QDirIterator it(":/", QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            const QString next = it.next();
+            if (next.startsWith(":/QtQuick"))
+                continue;
+            if (next.startsWith(":/qt-project.org"))
+                continue;
+            qDebug() << next;
+        }
+//        exit(0);
+    }
+
     QmlPath::append(":/qml/");
     QScopedPointer<GeoJsoner> geoJsoner(new GeoJsoner);
     HomeApplication app(argc, argv, QString());
@@ -110,13 +121,6 @@ int main(int argc, char **argv)
     QObject::connect(app.localeManager(), SIGNAL(localeChanged()), launcherLocaleManager, SLOT(onLocaleChanged()));
 
     QGuiApplication::setFont(QFont("Noto Sans"));
-
-    qmlRegisterType<AppLauncherBackground>("org.asteroid.launcher", 1, 0, "AppLauncherBackground");
-    qmlRegisterType<GestureFilterArea>("org.asteroid.launcher", 1, 0, "GestureFilterArea");
-    qmlRegisterType<NotificationSnoozer>("org.asteroid.launcher", 1, 0, "NotificationSnoozer");
-    //qmlRegisterType<GeoJsoner>("org.asteroid.launcher", 1, 0, "GeoJsoner");
-
-
     app.setCompositorPath("qrc:/qml/compositor.qml");
     Qt::ScreenOrientation nativeOrientation = app.primaryScreen()->nativeOrientation();
     QByteArray v = qgetenv("LAUNCHER_NATIVEORIENTATION");
@@ -140,9 +144,16 @@ int main(int argc, char **argv)
     }
     if (nativeOrientation == Qt::PrimaryOrientation)
         nativeOrientation = app.primaryScreen()->primaryOrientation();
-
     app.engine()->rootContext()->setContextProperty("nativeOrientation", nativeOrientation);
     app.engine()->rootContext()->setContextProperty("firstRun", firstRun);
+
+
+
+    qmlRegisterType<AppLauncherBackground>("org.asteroid.launcher", 1, 0, "AppLauncherBackground");
+    qmlRegisterType<GestureFilterArea>("org.asteroid.launcher", 1, 0, "GestureFilterArea");
+    qmlRegisterType<NotificationSnoozer>("org.asteroid.launcher", 1, 0, "NotificationSnoozer");
+    qmlRegisterType<GeoJsoner>("org.asteroid.launcher", 1, 0, "GeoJsoner");
+
     app.setQmlPath("qrc:/qml/MainScreen.qml");
 
     // Give these to the environment inside the lipstick homescreen
@@ -150,26 +161,6 @@ int main(int argc, char **argv)
     setenv("EGL_PLATFORM", "wayland", 1);
     setenv("QT_QPA_PLATFORM", "wayland", 1);
     setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1);
-
-
-    QCommandLineParser parser;
-    QCommandLineOption showQrcContentOption("qrc", "show qrc content");
-    parser.addOption(showQrcContentOption);
-    parser.process(app);
-    if (parser.isSet(showQrcContentOption)) {
-        QDirIterator it(":/", QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            const QString next = it.next();
-            if (next.startsWith(":/QtQuick"))
-                continue;
-            if (next.startsWith(":/qt-project.org"))
-                continue;
-            qDebug() << next;
-        }
-        exit(0);
-    }
-
-
     app.mainWindowInstance()->showFullScreen();
     return app.exec();
 }
