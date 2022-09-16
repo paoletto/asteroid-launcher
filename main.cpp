@@ -70,9 +70,9 @@ public slots:
         if (url.scheme() == QLatin1String("qrc")) {
             path = QStringLiteral(":") + url.path();
         }
-        QFile loadFile(url.toLocalFile());
+        QFile loadFile(path);
         if (!loadFile.open(QIODevice::ReadOnly)) {
-            qWarning() << "Error while opening the file: " << url;
+            qWarning() << "Error while opening the file: " << path << "(" << url << ")";
             qWarning() << loadFile.error() <<  loadFile.errorString();
             return false;
         }
