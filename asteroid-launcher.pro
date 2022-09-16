@@ -40,7 +40,7 @@ OTHER_FILES += qml/*.qml \
 
 TRANSLATIONS = $$files(i18n/$$TARGET.*.ts)
 
-map_tiles.files = $$files($$PWD/assets/map_tiles/*.*)
+map_tiles.files = $$files($$PWD/assets/map_tiles/*.png)
 map_tiles.prefix = /
 map_tiles.base = $$PWD
 

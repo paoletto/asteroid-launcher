@@ -66,6 +66,10 @@ public slots:
     Q_INVOKABLE bool load(QUrl url)
     {
         // Reading GeoJSON file
+        QString path = url.toString();
+        if (url.scheme() == QLatin1String("qrc")) {
+            path = QStringLiteral(":") + url.path();
+        }
         QFile loadFile(url.toLocalFile());
         if (!loadFile.open(QIODevice::ReadOnly)) {
             qWarning() << "Error while opening the file: " << url;
