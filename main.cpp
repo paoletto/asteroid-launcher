@@ -31,6 +31,7 @@
 
 #include <QFont>
 #include <QScopedPointer>
+#include <QCoreApplication>
 #include <QScreen>
 #include <QQmlEngine>
 #include <QQmlContext>
@@ -140,6 +141,9 @@ int main(int argc, char **argv)
     QmlPath::append(":/qml/");
     QScopedPointer<GeoJsoner> geoJsoner(new GeoJsoner);
     HomeApplication app(argc, argv, QString());
+    QCoreApplication::setOrganizationName("AsteroidOS");
+    QCoreApplication::setApplicationName("asteroid-launcher");
+
 
     app.engine()->rootContext()->setContextProperty("geoJsoner", geoJsoner.get());
 
